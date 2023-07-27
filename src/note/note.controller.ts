@@ -22,7 +22,9 @@ export class NoteController {
   }
 
   @Get()
-  findAll(@Query() query: { current: number; pageSize: number }) {
+  findAll(
+    @Query() query: { title: string; current: number; pageSize: number },
+  ) {
     return this.noteService.findAll(query);
   }
 

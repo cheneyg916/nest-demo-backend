@@ -3,7 +3,7 @@ import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Note } from './entities/note.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class NoteService {
@@ -18,12 +18,22 @@ export class NoteService {
     return await this.note.save(note);
   }
 
-  async findAll(query: { current: number; pageSize: number }) {
-    const { current, pageSize } = query;
-    const [list, total] = await this.note.findAndCount({
-      skip: (current - 1) * pageSize,
-      take: pageSize,
-    });
+  async findAll(query: { title: string; current: number; pageSize: number }) {
+    const { title, current, pageSize } = query;
+    const [list, total] = await this.note.findAndCount(
+      title
+        ? {
+            where: {
+              title: Like(`%${title}%`),
+            },
+            skip: (current - 1) * pageSize,
+            take: pageSize,
+          }
+        : {
+            skip: (current - 1) * pageSize,
+            take: pageSize,
+          },
+    );
     return { list, total };
   }
 
